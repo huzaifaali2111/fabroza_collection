@@ -1,4 +1,4 @@
-# fabroza_collection
+# Fabroza Collection
 
 ## Backend Setup Guide (`backend/`)
 
