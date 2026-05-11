@@ -13,7 +13,6 @@ app.use(cookieParser())
 
 
 // routes 
-
 app.use("/api", moduleRoutes);
 
 module.exports = app 
