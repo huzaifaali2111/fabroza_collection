@@ -1,7 +1,7 @@
-const  express = require('express');
-const cookieParser = require("cookie-parser")
+import express from "express";
+import cookieParser from"cookie-parser";
 
-const moduleRoutes = require('./routes/modules.routes'); 
+import moduleRoutes from "./routes/modules.routes.js"; 
 
 
 // app setting 
@@ -15,4 +15,4 @@ app.use(cookieParser())
 // routes 
 app.use("/api", moduleRoutes);
 
-module.exports = app 
+export default  app;

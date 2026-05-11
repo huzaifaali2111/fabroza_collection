@@ -1,11 +1,11 @@
-const express = require('express');
+import express from "express";
 const router = express.Router();
 
 
 // signup 
 router.post("/signup", (req, res) => {
     res.json({
-        message: "Login route",
+        message: "Signup route",
     });
 });
 
@@ -17,4 +17,4 @@ router.post("/login", (req, res) => {
 });
 
 
-module.exports = router
+export default router;
