@@ -9,11 +9,7 @@ const router = express.Router();
 router.post("/signup",validate(userValidation.signupValidation), authController.userSignup);
 
 // login 
-router.post("/login", (req, res) => {
-    res.json({
-        message: "Login route",
-    });
-});
+router.post("/login", validate(userValidation.loginValidation), authController.userlogin);
 
 
 export default router;

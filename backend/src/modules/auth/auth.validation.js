@@ -1,5 +1,6 @@
 import * as z from "zod";
 
+// signup validation
 const signupValidation = z.object({
   firstName: z
     .string()
@@ -35,6 +36,26 @@ const signupValidation = z.object({
   path: ["confirmPassword"],
 });
 
+
+// login validation
+const loginValidation = z.object({
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .email("Please enter a valid email address")
+    .min(5, "Email is too short")
+    .max(100, "Email is too long"),
+
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .regex(/[A-Z]/, "Password must contain one uppercase letter")
+    .regex(/[0-9]/, "Password must contain one number"),
+
+})
+
 export default {
-  signupValidation
+  signupValidation,
+  loginValidation
 }
