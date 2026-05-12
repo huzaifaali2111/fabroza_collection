@@ -71,11 +71,18 @@ async function login(payload) {
     const accessToken = token.generateAccessToken(user);
     const refreshToken = token.generateRefreshToken(user);
 
-    
+    return {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        role: user.role,
+        createdAt: user.createdAt,
+        accessToken: accessToken,
+        refreshToken: refreshToken
+    }
+};
 
-    const { password: _, ...safeUser } = user;
-    return safeUser,accessToken,refreshToken;
-}
 export default {
     signup,
     login
