@@ -58,6 +58,9 @@ npx prisma migrate dev --name your_migration_name
 ```bash
 npx prisma generate
 npx prisma studio
+npx.cmd prisma db push
+npx.cmd prisma generate
+npx.cmd prisma migrate dev
 ```
 
 - `prisma generate`: regenerate Prisma client manually.
