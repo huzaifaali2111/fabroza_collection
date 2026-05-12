@@ -1,15 +1,19 @@
-import express from "express";
-import * as z from "zod";
+import authService from "./auth.service.js";
 
 
 async function userSignup(req, res) {
-    const { firstName, lastName, email, password, confirmPassword } = req.body
+    try {
+        const user = await authService.signup(req.body)
+        return res.status(201).json({
+            message: "Signup successful",
+            data: user
+        });
 
-    return res.status(201).json({
-        message: "signup",
-    });
-
-
+    } catch (error) {
+        return res.status(error.statusCode || 500).json({
+            message: error.message || "Something went wrong",
+        });
+    }
 }
 
 
