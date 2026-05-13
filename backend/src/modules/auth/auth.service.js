@@ -1,6 +1,17 @@
 import prisma from "../../config/prisma.js";
 import bcrypt from "bcrypt";
 import token from "../../core/utils/token.js"
+import { UAParser } from "ua-parser-js";
+import crypto from "crypto";
+
+
+
+function hashToken(refreshToken) {
+    return crypto
+        .createHash("sha256")
+        .update(refreshToken)
+        .digest("hex");
+};
 
 // signup service
 async function signup(payload) {
@@ -37,12 +48,12 @@ async function signup(payload) {
         }
     });
     return user;
-}
+};
 
 // login service
 async function login(payload) {
 
-    const { email, password } = payload
+    const { email, password } = payload.body
     const user = await prisma.user.findUnique({
         where: { email },
         select: {
@@ -71,16 +82,40 @@ async function login(payload) {
     const accessToken = token.generateAccessToken(user);
     const refreshToken = token.generateRefreshToken(user);
 
+    // request header 
+    const parser = new UAParser(payload.headers['user-agent']);
+    const uaResult = await parser.getResult();
+
+    const tokenHash = hashToken(refreshToken);
+
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 7);
+
+    const deviceName = `${uaResult.browser.name || "Unknown Browser"} on ${uaResult.os.name || "Unknown OS"}`;
+
+    await prisma.session.create({
+        data: {
+            userId: user.id,
+            tokenHash,
+            userAgent: payload.headers["user-agent"],
+            ipAddress: payload.ip.replace(/^.*:/, ''),
+            deviceName,
+            expiresAt,
+        },
+    });
+
     return {
-        id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        role: user.role,
-        createdAt: user.createdAt,
-        accessToken: accessToken,
-        refreshToken: refreshToken
+        accessToken,
+        refreshToken,
+        user: {
+            id: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            role: user.role,
+        }
     }
+
 };
 
 export default {
