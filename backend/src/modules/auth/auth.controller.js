@@ -32,7 +32,7 @@ async function userlogin(req, res) {
         res.cookie("refreshToken", user.refreshToken, {
             httpOnly: true,
             secure: false,
-            sameSite: "strict",
+            // sameSite: "strict",
             maxAge: 7 * 24 * 60 * 60 * 1000,
         });
         return res.status(200).json({
@@ -47,10 +47,14 @@ async function userlogin(req, res) {
 
 }
 
-
+// user refresh token
+async function refreshToken(req, res) {
+    
+}
 
 
 export default {
     userSignup,
-    userlogin
+    userlogin,
+    refreshToken
 }

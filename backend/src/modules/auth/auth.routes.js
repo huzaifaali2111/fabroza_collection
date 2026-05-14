@@ -11,5 +11,7 @@ router.post("/signup",validate(userValidation.signupValidation), authController.
 // login 
 router.post("/login", validate(userValidation.loginValidation), authController.userlogin);
 
+router.post("/refresh", authController.refreshToken)
+
 
 export default router;
