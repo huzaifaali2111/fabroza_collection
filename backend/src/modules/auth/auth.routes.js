@@ -11,7 +11,11 @@ router.post("/signup",validate(userValidation.signupValidation), authController.
 // login 
 router.post("/login", validate(userValidation.loginValidation), authController.userlogin);
 
+// refresh token 
 router.post("/refresh", authController.refreshToken)
+
+// logout
+router.post("/logout", authController.logout)
 
 
 export default router;

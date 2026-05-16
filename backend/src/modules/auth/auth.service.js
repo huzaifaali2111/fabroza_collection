@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import token from "../../core/utils/token.js"
 import { UAParser } from "ua-parser-js";
 import crypto from "crypto";
+import jwt from "jsonwebtoken";
 
 
 
@@ -118,7 +119,111 @@ async function login(payload) {
 
 };
 
+// refresh service
+async function refreshToken(payload) {
+    const refreshToken = payload.cookies.refreshToken;
+    if (!refreshToken) {
+        const error = new Error("Refresh token missing");
+        error.statusCode = 401;
+        throw error;
+    }
+
+    let decoded;
+    try {
+        decoded = jwt.verify(refreshToken, process.env.REFRESH_SECRET);
+    } catch (error) {
+        error.statusCode = 401;
+        error.message = "Invalid or expired refresh token";
+        throw error;
+    }
+
+    const tokenHash = hashToken(refreshToken);
+    const session = await prisma.session.findUnique({
+        where: { tokenHash },
+        include: {
+            user: true,
+        },
+    });
+    if (!session) {
+        const error = new Error("Invalid refresh session")
+        error.statusCode = 401;
+        throw error
+    }
+    if (session.revokedAt) {
+        const error = new Error("Session has been revoked");
+        error.statusCode = 401;
+        throw error;
+    }
+
+    if (session.expiresAt < new Date()) {
+        const error = new Error("Refresh token expired");
+        error.statusCode = 401;
+        throw error;
+    }
+    if (session.userId !== decoded.userId) {
+        const error = new Error("Invalid refresh token");
+        error.statusCode = 401;
+        throw error;
+    }
+    const accessToken = token.generateAccessToken(session.user);
+
+    return {
+        accessToken,
+        user: {
+            id: session.user.id,
+            firstName: session.user.firstName,
+            lastName: session.user.lastName,
+            email: session.user.email,
+            role: session.user.role,
+        },
+    };
+}
+
+// logout 
+async function logout(payload) {
+    const refreshToken = payload.cookies.refreshToken;
+    if (!refreshToken) {
+        const error = new Error("No Refresh Token Found");
+        error.statusCode = 401;
+        throw error
+    }
+
+    let decoded;
+    try {
+        decoded = jwt.verify(refreshToken, process.env.REFRESH_SECRET);
+    } catch (error) {
+        error.statusCode = 401;
+        error.message = "Invalid or expired refresh token";
+        throw error;
+    }
+
+    const tokenHash = hashToken(refreshToken);
+
+    const session = await prisma.session.updateMany({
+        where: {
+            tokenHash,
+            userId: decoded.userId,
+            revokedAt: null,
+        },
+        data: {
+            revokedAt: new Date(),
+        },
+    });
+
+    // if (session.count === 0) {
+    //     const error = new Error("Refresh session not found or already revoked");
+    //     error.statusCode = 401;
+    //     throw error;
+    // }
+
+    return {
+        message: "logout successful"
+    }
+}
+
 export default {
     signup,
-    login
+    login,
+    refreshToken,
+    logout
 }

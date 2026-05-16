@@ -32,7 +32,7 @@ async function userlogin(req, res) {
         res.cookie("refreshToken", user.refreshToken, {
             httpOnly: true,
             secure: false,
-            // sameSite: "strict",
+            sameSite: "strict",
             maxAge: 7 * 24 * 60 * 60 * 1000,
         });
         return res.status(200).json({
@@ -49,12 +49,68 @@ async function userlogin(req, res) {
 
 // user refresh token
 async function refreshToken(req, res) {
-    
+    try {
+        const result = await authService.refreshToken(req)
+        res.cookie("accessToken", result.accessToken, {
+            httpOnly: true,
+            secure: false,
+            sameSite: "strict",
+            maxAge: 15 * 60 * 1000,
+        });
+        return res.status(200).json({
+            message: "Access token refreshed",
+            user: result.user,
+        });
+    } catch (error) {
+        return res.status(error.statusCode || 500).json({
+            message: error.message || "Something went wrong",
+        })
+    }
+}
+
+// logout
+async function logout(req, res) {
+    try {
+        const result = await authService.logout(req);
+
+        res.clearCookie("accessToken", {
+            httpOnly: true,
+            secure: false,
+            sameSite: "strict",
+        });
+
+        res.clearCookie("refreshToken", {
+            httpOnly: true,
+            secure: false,
+            sameSite: "strict",
+        });
+
+        return res.status(200).json({
+            message: result.message,
+        });
+    } catch (error) {
+        res.clearCookie("accessToken", {
+            httpOnly: true,
+            secure: false,
+            sameSite: "strict",
+        });
+
+        res.clearCookie("refreshToken", {
+            httpOnly: true,
+            secure: false,
+            sameSite: "strict",
+        });
+
+        return res.status(error.statusCode || 500).json({
+            message: error.message || "Something went wrong",
+        });
+    }
 }
 
 
 export default {
     userSignup,
     userlogin,
-    refreshToken
+    refreshToken,
+    logout
 }
