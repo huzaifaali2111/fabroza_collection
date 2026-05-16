@@ -26,13 +26,11 @@ async function userlogin(req, res) {
         res.cookie("accessToken", user.accessToken, {
             httpOnly: true,
             secure: false,
-            sameSite: "strict",
             maxAge: 15 * 60 * 1000,
         });
         res.cookie("refreshToken", user.refreshToken, {
             httpOnly: true,
             secure: false,
-            sameSite: "strict",
             maxAge: 7 * 24 * 60 * 60 * 1000,
         });
         return res.status(200).json({
@@ -54,7 +52,6 @@ async function refreshToken(req, res) {
         res.cookie("accessToken", result.accessToken, {
             httpOnly: true,
             secure: false,
-            sameSite: "strict",
             maxAge: 15 * 60 * 1000,
         });
         return res.status(200).json({
@@ -76,13 +73,11 @@ async function logout(req, res) {
         res.clearCookie("accessToken", {
             httpOnly: true,
             secure: false,
-            sameSite: "strict",
         });
 
         res.clearCookie("refreshToken", {
             httpOnly: true,
             secure: false,
-            sameSite: "strict",
         });
 
         return res.status(200).json({
@@ -92,13 +87,11 @@ async function logout(req, res) {
         res.clearCookie("accessToken", {
             httpOnly: true,
             secure: false,
-            sameSite: "strict",
         });
 
         res.clearCookie("refreshToken", {
             httpOnly: true,
             secure: false,
-            sameSite: "strict",
         });
 
         return res.status(error.statusCode || 500).json({
